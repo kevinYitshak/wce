@@ -16,7 +16,7 @@ class OneModel(nn.Module):
         self.device = settings.device
         self.inplanes = 64
         self.num_pro = 3
-        self.latent_dim = 129
+        self.latent_dim = 130
         self.args = args
         if self.args.mode == 'train':
             self.shot = None 

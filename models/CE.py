@@ -95,8 +95,8 @@ def f_ext_fg(in_planes, latent_dim):
             nn.ConvTranspose2d(in_channels=64, out_channels=128, kernel_size=3, bias=True),
             nn.BatchNorm2d(128),
             nn.ReLU(),
-            nn.ConvTranspose2d(in_channels=128, out_channels=latent_dim-1, kernel_size=3, bias=True),
-            nn.BatchNorm2d(latent_dim-1),
+            nn.ConvTranspose2d(in_channels=128, out_channels=latent_dim-2, kernel_size=3, bias=True),
+            nn.BatchNorm2d(latent_dim-2),
             nn.ReLU(),
         )
 
@@ -151,8 +151,8 @@ def f_ext_q(in_planes, latent_dim):
             nn.ConvTranspose2d(in_channels=64, out_channels=128, kernel_size=3, bias=True),
             nn.BatchNorm2d(128),
             nn.ReLU(),
-            nn.ConvTranspose2d(in_channels=128, out_channels=latent_dim-1, kernel_size=3, bias=True),
-            nn.BatchNorm2d(latent_dim-1),
+            nn.ConvTranspose2d(in_channels=128, out_channels=latent_dim-2, kernel_size=3, bias=True),
+            nn.BatchNorm2d(latent_dim-2),
             nn.ReLU()
         )
 

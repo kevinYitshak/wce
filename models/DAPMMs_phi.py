@@ -32,18 +32,6 @@ class VGPMMs(nn.Module):
 
         self.dagmm = DaGMM(c, latent_dim=self.latent_dim, k=self.num_pro)
         
-        # self.exp_ch = nn.Sequential(
-        #     nn.Conv2d(in_channels=256, out_channels=512, kernel_size=1, bias=True),
-        #     nn.BatchNorm2d(512),
-        #     nn.ReLU()
-        # )
-
-        # self.red_ch = nn.Sequential(
-        #     nn.Conv2d(in_channels=512, out_channels=256, kernel_size=1, bias=True),
-        #     nn.BatchNorm2d(256),
-        #     nn.ReLU()
-        # )
-
         self.mse = nn.MSELoss()
 
     def compute_gmm_params(self, z, gamma):
@@ -91,12 +79,15 @@ class VGPMMs(nn.Module):
         enc_fg, enc_q = self.compression.forward_enc(fg_feature, query_feature) # [b, 64, 46, 46]
         dec_fg, dec_q = self.compression.forward_dec(enc_fg, enc_q) # [b, 128, 46, 46]
 
-        rec_cosine_fq = F.cosine_similarity(enc_fg, enc_q, dim=1) # [b, 46, 46]
-        # rec_cosine_bq = F.cosine_similarity(enc_bg, enc_q, dim=1) # [b, 46, 46]
+        rec_cosine_fg = F.cosine_similarity(fg_feature, enc_fg, dim=1) # [b, 46, 46]
+        rec_cosine_q = F.cosine_similarity(query_feature, enc_q, dim=1) # [b, 46, 46]
 
-        z_fg = torch.cat([enc_fg, rec_cosine_fq.unsqueeze(1)], dim=1) # [b, 65, 46, 46]
+        rec_ecu_fg = (fg_feature - dec_fg).norm(2, dim=1)
+        rec_ecu_q = (query_feature - dec_q).norm(2, dim=1)
+
+        z_fg = torch.cat([enc_fg, rec_cosine_fg.unsqueeze(1), rec_ecu_fg.unsqueeze(1)], dim=1) # [b, 65, 46, 46]
         # z_bg = torch.cat([enc_bg, rec_cosine_bq.unsqueeze(1)], dim=1) # [b, 65, 46, 46]
-        z_q = torch.cat([enc_q, rec_cosine_fq.unsqueeze(1)], dim=1) # [b, 65, 46, 46]
+        z_q = torch.cat([enc_q, rec_cosine_q.unsqueeze(1), rec_ecu_q.unsqueeze(1)], dim=1) # [b, 65, 46, 46]
 
         gamma_fg, gamma_q = self.estimation(z_fg, z_q) # [b, k, 46, 46]
 
@@ -176,7 +167,7 @@ class VGPMMs(nn.Module):
 
         # ELBO LOSS
         # kl_loss_fg_q = self.kl_loss(gmm_q, gmm_fg).mean() - gmm_fg.log_prob(feature_sampling_q.permute(1, 0, 2).to(self.device)).mean()
-        kl_loss_fg_q = self.kl_loss(gmm_q, gmm_fg).mean() - gmm_fg.log_prob(feature_sampling_fg.permute(1, 0, 2).to(self.device)).mean()
+        kl_loss_fg_q = self.kl_loss(gmm_q, gmm_fg).mean() - gmm_fg.log_prob(feature_sampling_q.permute(1, 0, 2).to(self.device)).mean()
         # kl_loss_bg_q = self.kl_loss(gmm_q, gmm_bg).mean() - gmm_bg.log_prob(feature_sampling_q.permute(1, 0, 2).to(self.device)).mean()
 
         total_projection_loss = enc_energy_fg + enc_energy_q
