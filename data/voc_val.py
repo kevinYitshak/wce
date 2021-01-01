@@ -119,7 +119,7 @@ class voc_val():
         #support_mask = self.read_binary_mask(support_name, class_)
         #query_mask = self.read_binary_mask(query_name, class_)
 
-        return query_img, query_mask, support_img, support_mask, class_
+        return query_img, query_mask, support_img, support_mask, class_, query_name
 
     def load_frame_k_shot(self, support_name_list, query_name, class_):
         print('query image name: ', query_name)
@@ -137,7 +137,7 @@ class voc_val():
             support_img_list.append(support_img)
             support_mask_list.append(support_mask)        
 
-        return query_img, query_mask, support_img_list, support_mask_list
+        return query_img, query_mask, support_img_list, support_mask_list, query_name
 
 
     def get_1_shot(self, idx):
@@ -152,7 +152,7 @@ class voc_val():
             if support_name != query_name:
                 break
 
-        query_img, query_mask, support_img, support_mask, class_ = self.load_frame(support_name, query_name, class_)
+        query_img, query_mask, support_img, support_mask, class_, query_name = self.load_frame(support_name, query_name, class_)
 
         size = query_mask.shape
 
@@ -176,7 +176,7 @@ class voc_val():
 
         self.count = self.count + 1
 
-        return query_img, query_mask, support_img, support_mask, class_, size
+        return query_img, query_mask, support_img, support_mask, class_, size, query_name
 
     def get_k_shot(self, idx):
 
@@ -189,7 +189,7 @@ class voc_val():
         support_choice_list = support_set_list.copy()
         support_choice_list.remove(query_name)
         support_name_list = self.random_generator.sample(support_choice_list, self.k_shot)
-        query_img, query_mask, support_img_list, support_mask_list = self.load_frame_k_shot(support_name_list, query_name, class_)
+        query_img, query_mask, support_img_list, support_mask_list, query_name = self.load_frame_k_shot(support_name_list, query_name, class_)
 
         size = query_mask.shape
 
@@ -220,7 +220,7 @@ class voc_val():
 
         self.count = self.count + 1
 
-        return query_img, query_mask, support_img, support_mask, class_, size
+        return query_img, query_mask, support_img, support_mask, class_, size, query_name
 
     def __len__(self):
         # return len(self.image_list)
@@ -228,10 +228,10 @@ class voc_val():
 
     def __getitem__(self, idx):
         if self.k_shot==1:
-            query_img, query_mask, support_img, support_mask, class_, size  = self.get_1_shot(idx)# , size
+            query_img, query_mask, support_img, support_mask, class_, size, query_name  = self.get_1_shot(idx)# , size
         else:
-            query_img, query_mask, support_img, support_mask, class_, size = self.get_k_shot(idx)  # , size
+            query_img, query_mask, support_img, support_mask, class_, size, query_name = self.get_k_shot(idx)  # , size
 
-        return query_img, query_mask, support_img, support_mask, class_ #, size
+        return query_img, query_mask, support_img, support_mask, class_, query_name #, size
 
 

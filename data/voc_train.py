@@ -181,7 +181,7 @@ class voc_train():
         #support_mask = self.read_binary_mask(support_name, class_)
         #query_mask = self.read_binary_mask(query_name, class_)
 
-        return query_img, query_mask, support_img, support_mask, class_
+        return query_img, query_mask, support_img, support_mask, class_, query_name
 
     def random_choose(self):
 
@@ -215,7 +215,7 @@ class voc_train():
     def __getitem__(self, idx):
         support_name, query_name, class_ = self.random_choose()
 
-        query_img, query_mask, support_img, support_mask, class_ = self.load_frame(support_name, query_name, class_)
+        query_img, query_mask, support_img, support_mask, class_, query_name = self.load_frame(support_name, query_name, class_)
 
         _aug = self.aug._aug()
         query_augmented = _aug(image=query_img, mask=query_mask)
@@ -246,4 +246,4 @@ class voc_train():
 
         self.count = self.count + 1
 
-        return query_img, query_mask, support_img, support_mask, class_
+        return query_img, query_mask, support_img, support_mask, class_, query_name
